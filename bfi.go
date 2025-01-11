@@ -5,6 +5,7 @@ import (
 	"bfi/tokenizer"
 	"fmt"
 	"os"
+	"strings"
 )
 
 func main() {
@@ -24,6 +25,8 @@ func main() {
 		fmt.Println("Error on reading File")
 	}
 	instructions := string(content)
+	instructions = strings.ReplaceAll(instructions, "\n", "")
+	instructions = strings.ReplaceAll(instructions, "\r", "")
 
 	// tokenize the input
 	tokens := tokenizer.Tokenize(instructions)
