@@ -50,7 +50,7 @@ func main() {
 	fmt.Println()
 
 	// debug output
-	// fmt.Println(memory.ToArray())
+	fmt.Println(memory.ToArray())
 }
 
 func executeInstructions(memory memory.Memory, tokens []tokenizer.Token, startInstructionIndex int) int {
@@ -77,15 +77,27 @@ func executeInstructions(memory memory.Memory, tokens []tokenizer.Token, startIn
 		case tokenizer.PRINT_CURRENT_REGISTER:
 			fmt.Printf("%c", memory.GetCurrentRegister().GetValue())
 		case tokenizer.READ_TO_CURRENT_REGISTER:
-			var input string
-			for len(input) == 0 {
-				fmt.Print("Enter a character: ")
-				fmt.Scan(&input)
-			}
-			memory.GetCurrentRegister().SetValue(int(input[0]))
+			memory.GetCurrentRegister().SetValue(readNumber())
 		}
 		instructionIndex++
 	}
 
 	return instructionIndex
+}
+
+func readNumber() int {
+	var number int
+	for {
+		fmt.Print("Enter a number: ")
+		_, err := fmt.Scanln(&number)
+		if err != nil {
+			fmt.Println("Invalid input. Please enter a valid number.")
+			// Clear the input buffer to avoid infinite loop due to lingering invalid input
+			var discard string
+			fmt.Scanln(&discard)
+			continue
+		}
+		break
+	}
+	return number
 }
