@@ -52,7 +52,7 @@ func main() {
 	fmt.Println()
 
 	// debug output
-	fmt.Println(memory.ToArray())
+	// fmt.Println(memory.ToArray())
 }
 
 func executeInstructions(memory memory.Memory, tokens []tokenizer.Token, startInstructionIndex int) int {
