@@ -15,7 +15,8 @@ func main() {
 	args := os.Args
 	if len(args) != 2 {
 		fmt.Println("Wrong number of arguments were passed.")
-		// TODO: print help
+		fmt.Println()
+		printHelp()
 		return
 	}
 
@@ -35,6 +36,7 @@ func main() {
 		fileContent, err := os.ReadFile(args[1])
 		if err != nil {
 			fmt.Println("Error on reading File")
+			return
 		}
 		instructions = string(fileContent)
 		instructions = strings.ReplaceAll(instructions, "\n", "")
@@ -100,4 +102,11 @@ func readNumber() int {
 		break
 	}
 	return number
+}
+
+func printHelp() {
+	fmt.Println("Interpreter of the brainfuck language.")
+	fmt.Println("Example Usages:")
+	fmt.Println("  ./bfi hello-world.bf")
+	fmt.Println("  ./bfi ,>,<[>+<-]")
 }
