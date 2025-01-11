@@ -61,6 +61,13 @@ func executeInstructions(memory memory.Memory, tokens []tokenizer.Token, startIn
 			return instructionIndex
 		case tokenizer.PRINT_CURRENT_REGISTER:
 			fmt.Printf("%c", memory.GetCurrentRegister().GetValue())
+		case tokenizer.READ_TO_CURRENT_REGISTER:
+			var input string
+			for len(input) == 0 {
+				fmt.Print("Enter a character: ")
+				fmt.Scan(&input)
+			}
+			memory.GetCurrentRegister().SetValue(int(input[0]))
 		}
 		instructionIndex++
 	}

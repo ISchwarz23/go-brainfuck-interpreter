@@ -12,6 +12,10 @@ func (s MemoryRegister) GetValue() int {
 	return s.segment.Value.(int)
 }
 
+func (s MemoryRegister) SetValue(newValue int) {
+	s.segment.Value = newValue
+}
+
 func (s MemoryRegister) IncrementValue() {
 	s.addToValue(1)
 }
