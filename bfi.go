@@ -9,22 +9,21 @@ import (
 )
 
 func main() {
-	// retrieve arguments
-	args := os.Args
 
 	// check arguments
+	args := os.Args
 	if len(args) != 2 {
 		fmt.Println("Wrong number of arguments were passed.")
 		// TODO: print help
 		return
 	}
 
-	// read the file content
-	content, err := os.ReadFile(args[1])
+	// read isntructions from file
+	fileContent, err := os.ReadFile(args[1])
 	if err != nil {
 		fmt.Println("Error on reading File")
 	}
-	instructions := string(content)
+	instructions := string(fileContent)
 	instructions = strings.ReplaceAll(instructions, "\n", "")
 	instructions = strings.ReplaceAll(instructions, "\r", "")
 
@@ -39,11 +38,11 @@ func main() {
 	// fmt.Println(memory.ToArray())
 }
 
-func executeInstructions(memory memory.Memory, tokens []tokenizer.Token, currentInstruction int) int {
+func executeInstructions(memory memory.Memory, tokens []tokenizer.Token, startInstructionIndex int) int {
 
-	i := currentInstruction
-	for i < len(tokens) {
-		switch tokens[i] {
+	instructionIndex := startInstructionIndex
+	for instructionIndex < len(tokens) {
+		switch tokens[instructionIndex] {
 		case tokenizer.MOVE_POINTER_RIGHT:
 			memory.MovePointerRight()
 		case tokenizer.MOVE_POINTER_LEFT:
@@ -53,18 +52,18 @@ func executeInstructions(memory memory.Memory, tokens []tokenizer.Token, current
 		case tokenizer.DECREMENT_CURRENT_REGISTER:
 			memory.GetCurrentRegister().DecrementValue()
 		case tokenizer.LOOP_START:
-			var loopEndI int
+			var loopEndInstructionIndex int
 			for memory.GetCurrentRegister().GetValue() > 0 {
-				loopEndI = executeInstructions(memory, tokens, i+1)
+				loopEndInstructionIndex = executeInstructions(memory, tokens, instructionIndex+1)
 			}
-			i = loopEndI
+			instructionIndex = loopEndInstructionIndex
 		case tokenizer.LOOP_END:
-			return i
+			return instructionIndex
 		case tokenizer.PRINT_CURRENT_REGISTER:
 			fmt.Printf("%c", memory.GetCurrentRegister().GetValue())
 		}
-		i++
+		instructionIndex++
 	}
 
-	return i
+	return instructionIndex
 }
