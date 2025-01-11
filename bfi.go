@@ -5,6 +5,7 @@ import (
 	"bfi/tokenizer"
 	"fmt"
 	"os"
+	"regexp"
 	"strings"
 )
 
@@ -18,20 +19,34 @@ func main() {
 		return
 	}
 
-	// read isntructions from file
-	fileContent, err := os.ReadFile(args[1])
+	// Compile the regex
+	re, err := regexp.Compile(`^[\.,\[\]<>+-]+$`)
 	if err != nil {
-		fmt.Println("Error on reading File")
+		fmt.Println("Error compiling regex:", err)
+		return
 	}
-	instructions := string(fileContent)
-	instructions = strings.ReplaceAll(instructions, "\n", "")
-	instructions = strings.ReplaceAll(instructions, "\r", "")
+
+	var instructions string
+	if re.MatchString(args[1]) {
+		// use arg as instructions
+		instructions = args[1]
+	} else {
+		// read instructions from file
+		fileContent, err := os.ReadFile(args[1])
+		if err != nil {
+			fmt.Println("Error on reading File")
+		}
+		instructions = string(fileContent)
+		instructions = strings.ReplaceAll(instructions, "\n", "")
+		instructions = strings.ReplaceAll(instructions, "\r", "")
+	}
 
 	// tokenize the input
 	tokens := tokenizer.Tokenize(instructions)
 
 	// run the bf program
-	executeInstructions(memory.New(), tokens, 0)
+	memory := memory.New()
+	executeInstructions(memory, tokens, 0)
 	fmt.Println()
 
 	// debug output
