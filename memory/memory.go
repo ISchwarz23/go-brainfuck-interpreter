@@ -42,7 +42,7 @@ func (m Memory) GetCurrentRegister() MemoryRegister {
 func (m *Memory) MovePointerLeft() {
 	nextPointer := m.pointerPosition.Prev()
 	if nextPointer == nil {
-		// TODO: throw error
+		panic("Pointer moved out of memory")
 	}
 	m.pointerPosition = nextPointer
 }
