@@ -4,27 +4,27 @@ import (
 	"container/list"
 )
 
-type MemoryRegister struct {
+type Register struct {
 	segment *list.Element
 }
 
-func (s MemoryRegister) GetValue() int {
+func (s Register) GetValue() int {
 	return s.segment.Value.(int)
 }
 
-func (s MemoryRegister) SetValue(newValue int) {
+func (s Register) SetValue(newValue int) {
 	s.segment.Value = newValue
 }
 
-func (s MemoryRegister) IncrementValue() {
+func (s Register) IncrementValue() {
 	s.addToValue(1)
 }
 
-func (s MemoryRegister) DecrementValue() {
+func (s Register) DecrementValue() {
 	s.addToValue(-1)
 }
 
-func (s MemoryRegister) addToValue(delta int) {
+func (s Register) addToValue(delta int) {
 	s.segment.Value = s.segment.Value.(int) + delta
 }
 
@@ -39,8 +39,8 @@ func New() Memory {
 	return Memory{segments, segments.Front()}
 }
 
-func (m Memory) GetCurrentRegister() MemoryRegister {
-	return MemoryRegister{m.pointerPosition}
+func (m Memory) GetCurrentRegister() Register {
+	return Register{m.pointerPosition}
 }
 
 func (m *Memory) MovePointerLeft() {

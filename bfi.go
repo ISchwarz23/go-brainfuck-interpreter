@@ -23,18 +23,18 @@ func main() {
 		return
 	}
 
-	// read instructions
-	instructions, err := readInstructions(otherArgs[0])
+	// read code
+	code, err := readCode(otherArgs[0])
 	if err != nil {
 		return
 	}
 
 	// tokenize instructions
-	tokens := tokenizer.Tokenize(instructions)
+	tokens := tokenizer.Tokenize(code)
 
 	// run bf program
 	memory := memory.New()
-	executeInstructions(memory, tokens, 0)
+	interpret(memory, tokens, 0)
 	fmt.Println()
 
 	// dump memory if requestd
@@ -43,7 +43,7 @@ func main() {
 	}
 }
 
-func readInstructions(instructionsOrFileLocation string) (string, error) {
+func readCode(fileLocationOrCode string) (string, error) {
 	// create bg code regex
 	re, err := regexp.Compile(`^[\.,\[\]<>+-]+$`)
 	if err != nil {
@@ -52,12 +52,12 @@ func readInstructions(instructionsOrFileLocation string) (string, error) {
 	}
 
 	var instructions string
-	if re.MatchString(instructionsOrFileLocation) {
+	if re.MatchString(fileLocationOrCode) {
 		// use arg as instructions
-		instructions = instructionsOrFileLocation
+		instructions = fileLocationOrCode
 	} else {
 		// read instructions from file
-		fileContent, err := os.ReadFile(instructionsOrFileLocation)
+		fileContent, err := os.ReadFile(fileLocationOrCode)
 		if err != nil {
 			fmt.Println("Error on reading File", err)
 			return "", err
@@ -69,11 +69,11 @@ func readInstructions(instructionsOrFileLocation string) (string, error) {
 	return instructions, nil
 }
 
-func executeInstructions(memory memory.Memory, tokens []tokenizer.Token, startInstructionIndex int) int {
+func interpret(memory memory.Memory, tokens []tokenizer.Token, startTokenIndex int) int {
 
-	instructionIndex := startInstructionIndex
-	for instructionIndex < len(tokens) {
-		switch tokens[instructionIndex] {
+	tokenIndex := startTokenIndex
+	for tokenIndex < len(tokens) {
+		switch tokens[tokenIndex] {
 		case tokenizer.MOVE_POINTER_RIGHT:
 			memory.MovePointerRight()
 		case tokenizer.MOVE_POINTER_LEFT:
@@ -83,22 +83,22 @@ func executeInstructions(memory memory.Memory, tokens []tokenizer.Token, startIn
 		case tokenizer.DECREMENT_CURRENT_REGISTER:
 			memory.GetCurrentRegister().DecrementValue()
 		case tokenizer.LOOP_START:
-			var loopEndInstructionIndex int
+			var loopEndTokenIndex int
 			for memory.GetCurrentRegister().GetValue() > 0 {
-				loopEndInstructionIndex = executeInstructions(memory, tokens, instructionIndex+1)
+				loopEndTokenIndex = interpret(memory, tokens, tokenIndex+1)
 			}
-			instructionIndex = loopEndInstructionIndex
+			tokenIndex = loopEndTokenIndex
 		case tokenizer.LOOP_END:
-			return instructionIndex
+			return tokenIndex
 		case tokenizer.PRINT_CURRENT_REGISTER:
 			fmt.Printf("%c", memory.GetCurrentRegister().GetValue())
 		case tokenizer.READ_TO_CURRENT_REGISTER:
 			memory.GetCurrentRegister().SetValue(readNumber())
 		}
-		instructionIndex++
+		tokenIndex++
 	}
 
-	return instructionIndex
+	return tokenIndex
 }
 
 func readNumber() int {
@@ -116,11 +116,4 @@ func readNumber() int {
 		break
 	}
 	return number
-}
-
-func printHelp() {
-	fmt.Println("Interpreter of the brainfuck language.")
-	fmt.Println("Example Usages:")
-	fmt.Println("  ./bfi hello-world.bf")
-	fmt.Println("  ./bfi ,>,<[>+<-]")
 }
