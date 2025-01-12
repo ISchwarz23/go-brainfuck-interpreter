@@ -3,6 +3,7 @@ package main
 import (
 	"bfi/memory"
 	"bfi/tokenizer"
+	"flag"
 	"fmt"
 	"os"
 	"regexp"
@@ -10,49 +11,62 @@ import (
 )
 
 func main() {
+	// define and parse flags
+	shouldDumpMemory := flag.Bool("dump-memory", false, "when given, the memory is dumped after execution")
+	flag.BoolVar(shouldDumpMemory, "d", false, "short for -dump-memory")
+	flag.Parse()
+	otherArgs := flag.Args()
 
-	// check arguments
-	args := os.Args
-	if len(args) != 2 {
-		fmt.Println("Wrong number of arguments were passed.")
-		fmt.Println()
-		printHelp()
+	// validate args
+	if len(otherArgs) == 0 {
+		fmt.Println("No code or .bf file passed")
 		return
 	}
 
-	// Compile the regex
+	// read instructions
+	instructions, err := readInstructions(otherArgs[0])
+	if err != nil {
+		return
+	}
+
+	// tokenize instructions
+	tokens := tokenizer.Tokenize(instructions)
+
+	// run bf program
+	memory := memory.New()
+	executeInstructions(memory, tokens, 0)
+	fmt.Println()
+
+	// dump memory if requestd
+	if *shouldDumpMemory {
+		fmt.Println("Memory Dump:", memory.ToArray())
+	}
+}
+
+func readInstructions(instructionsOrFileLocation string) (string, error) {
+	// create bg code regex
 	re, err := regexp.Compile(`^[\.,\[\]<>+-]+$`)
 	if err != nil {
 		fmt.Println("Error compiling regex:", err)
-		return
+		return "", err
 	}
 
 	var instructions string
-	if re.MatchString(args[1]) {
+	if re.MatchString(instructionsOrFileLocation) {
 		// use arg as instructions
-		instructions = args[1]
+		instructions = instructionsOrFileLocation
 	} else {
 		// read instructions from file
-		fileContent, err := os.ReadFile(args[1])
+		fileContent, err := os.ReadFile(instructionsOrFileLocation)
 		if err != nil {
-			fmt.Println("Error on reading File")
-			return
+			fmt.Println("Error on reading File", err)
+			return "", err
 		}
 		instructions = string(fileContent)
 		instructions = strings.ReplaceAll(instructions, "\n", "")
 		instructions = strings.ReplaceAll(instructions, "\r", "")
 	}
-
-	// tokenize the input
-	tokens := tokenizer.Tokenize(instructions)
-
-	// run the bf program
-	memory := memory.New()
-	executeInstructions(memory, tokens, 0)
-	fmt.Println()
-
-	// debug output
-	// fmt.Println(memory.ToArray())
+	return instructions, nil
 }
 
 func executeInstructions(memory memory.Memory, tokens []tokenizer.Token, startInstructionIndex int) int {
