@@ -84,6 +84,7 @@ func interpret(memory memory.Memory, tokens []tokenizer.Token, startTokenIndex i
 		case tokenizer.DECREMENT_CURRENT_REGISTER:
 			memory.GetCurrentRegister().DecrementValue()
 		case tokenizer.LOOP_START:
+			// TODO: fix loop skipping (create AST)
 			var loopEndTokenIndex int
 			for memory.GetCurrentRegister().GetValue() != 0 {
 				loopEndTokenIndex = interpret(memory, tokens, tokenIndex+1)
