@@ -65,6 +65,7 @@ func readCode(fileLocationOrCode string) (string, error) {
 		instructions = string(fileContent)
 		instructions = strings.ReplaceAll(instructions, "\n", "")
 		instructions = strings.ReplaceAll(instructions, "\r", "")
+		instructions = strings.ReplaceAll(instructions, " ", "")
 	}
 	return instructions, nil
 }
@@ -84,7 +85,7 @@ func interpret(memory memory.Memory, tokens []tokenizer.Token, startTokenIndex i
 			memory.GetCurrentRegister().DecrementValue()
 		case tokenizer.LOOP_START:
 			var loopEndTokenIndex int
-			for memory.GetCurrentRegister().GetValue() > 0 {
+			for memory.GetCurrentRegister().GetValue() != 0 {
 				loopEndTokenIndex = interpret(memory, tokens, tokenIndex+1)
 			}
 			tokenIndex = loopEndTokenIndex
